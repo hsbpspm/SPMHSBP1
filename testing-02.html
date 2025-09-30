@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SPM 2025 Exam Schedule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  </head>
+  <body class="bg-black text-white min-h-screen p-0">
+    <!-- Banner -->
+    <div class="w-full bg-black flex justify-center">
+      <img src="https://i.imgur.com/B3ASs0g.jpg" 
+           alt="Sekolah Aspirasi Johor" 
+           class="max-w-full h-auto" />
+    </div>
+
+    <div id="root" class="p-3 sm:p-4"></div>
+
+    <script type="text/babel">
+      const events = [
+        { title: "Ujian Bertutur BM", exam: "Monday 3 November 2025", date: "2025-11-03", color: "bg-pink-600" },
+        { title: "Ujian Bertutur BI", exam: "Monday 10 November 2025", date: "2025-11-10", color: "bg-orange-600" },
+        { title: "Ujian Amali Sains", exam: "Monday 17 November 2025", date: "2025-11-17", color: "bg-purple-700" },
+        { title: "UMBM & UMBI", exam: "Thursday 20 November 2025", date: "2025-11-20", color: "bg-red-600" },
+        { title: "Peperiksaan Bertulis", exam: "Tuesday 25 November 2025", date: "2025-11-25", color: "bg-green-600" },
+      ];
+
+      function ExamSchedule() {
+        const [tab, setTab] = React.useState("future");
+        const [futureEvents, setFutureEvents] = React.useState([]);
+        const [pastEvents, setPastEvents] = React.useState([]);
+
+        React.useEffect(() => {
+          const updateEvents = () => {
+            const now = new Date();
+            const future = [];
+            const past = [];
+
+            events.forEach((event) => {
+              const target = new Date(event.date);
+              const diffTime = target - now;
+              const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+              const diffHours = Math.floor((diffTime / (1000 * 60 * 60)) % 24);
+              const diffMinutes = Math.floor((diffTime / (1000 * 60)) % 60);
+              const diffSeconds = Math.floor((diffTime / 1000) % 60);
+
+              if (diffTime >= 0) {
+                future.push({
+                  ...event,
+                  countdown: `${diffDays}h ${diffHours}j ${diffMinutes}m ${diffSeconds}s`,
+                });
+              } else {
+                past.push({ ...event });
+              }
+            });
+
+            setFutureEvents(future);
+            setPastEvents(past);
+          };
+
+          updateEvents();
+          const timer = setInterval(updateEvents, 1000);
+          return () => clearInterval(timer);
+        }, []);
+
+        return (
+          <div>
+            <header className="flex justify-center mb-3 mt-3">
+              <h1 className="text-2xl sm:text-4xl font-extrabold">SPM 2025</h1>
+            </header>
+
+            <div className="mb-4 flex flex-wrap justify-center gap-2">
+              <button onClick={() => setTab("future")} className={`px-4 py-2 rounded text-sm sm:text-lg ${tab === "future" ? "bg-white text-black" : "bg-gray-700"}`}>
+                Future ({futureEvents.length})
+              </button>
+              <button onClick={() => setTab("past")} className={`px-4 py-2 rounded text-sm sm:text-lg ${tab === "past" ? "bg-white text-black" : "bg-gray-700"}`}>
+                Past ({pastEvents.length})
+              </button>
+              <button onClick={() => setTab("info")} className={`px-4 py-2 rounded text-sm sm:text-lg ${tab === "info" ? "bg-white text-black" : "bg-gray-700"}`}>
+                Info
+              </button>
+            </div>
+
+            {tab === "future" && (
+              futureEvents.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {futureEvents.map((event, idx) => (
+                    <div key={idx} className={`p-3 sm:p-4 text-center rounded-xl ${event.color}`}>
+                      <h2 className="text-base sm:text-xl font-bold">{event.title}</h2>
+                      <p className="text-sm sm:text-base">{event.exam}</p>
+                      <p className="text-lg sm:text-2xl font-bold mt-2">{event.countdown}</p>
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="text-center text-gray-400 text-base">No future events</p>
+            )}
+
+            {tab === "past" && (
+              pastEvents.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                  {pastEvents.map((event, idx) => (
+                    <div key={idx} className={`p-3 sm:p-4 text-center rounded-xl ${event.color}`}>
+                      <h2 className="text-base sm:text-xl font-bold">{event.title}</h2>
+                      <p className="text-sm sm:text-base">{event.exam}</p>
+                      <p className="text-sm sm:text-base">Event Passed</p>
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="text-center text-gray-400 text-base">No past events</p>
+            )}
+
+            {tab === "info" && (
+              <div className="p-4 sm:p-6 bg-white text-black rounded-xl">
+                <h2 className="text-xl sm:text-2xl font-bold mb-3">Maklumat Ringkas</h2>
+                <p className="text-base sm:text-lg">Jumlah calon : <span className="font-bold">124</span></p>
+                <p className="text-base sm:text-lg">Jumlah subjek : <span className="font-bold">19</span></p>
+                <p className="text-base sm:text-lg">ETR : <span className="font-bold">2.99</span></p>
+              </div>
+            )}
+          </div>
+        );
+      }
+
+      ReactDOM.createRoot(document.getElementById("root")).render(<ExamSchedule />);
+    </script>
+  </body>
+</html>
+
+
